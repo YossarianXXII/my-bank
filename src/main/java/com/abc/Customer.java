@@ -3,6 +3,8 @@ package com.abc;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.abc.account.Account;
+
 import static java.lang.Math.abs;
 
 public class Customer {
@@ -30,7 +32,7 @@ public class Customer {
     public double totalInterestEarned() {
         double total = 0;
         for (Account a : accounts)
-            total += a.interestEarned();
+            total += a.calculateInterest();
         return total;
     }
 
@@ -46,7 +48,7 @@ public class Customer {
         return statement;
     }
 
-    private String statementForAccount(Account a) {
+    private String statementForAccount(TAccount a) {
         String s = "";
 
        //Translate to pretty account type

@@ -3,21 +3,28 @@ package com.abc;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Account {
+import com.abc.account.Account;
+
+public class TAccount implements Account {
 
     public static final int CHECKING = 0;
     public static final int SAVINGS = 1;
     public static final int MAXI_SAVINGS = 2;
-
-    private final int accountType;
+    
+    
+    private final AccountType accountType;
     public List<Transaction> transactions;
 
-    public Account(int accountType) {
+    public TAccount(AccountType accountType) {
         this.accountType = accountType;
         this.transactions = new ArrayList<Transaction>();
     }
 
-    public void deposit(double amount) {
+    /* (non-Javadoc)
+	 * @see com.abc.Account#deposit(double)
+	 */
+    @Override
+	public void deposit(double amount) {
         if (amount <= 0) {
             throw new IllegalArgumentException("amount must be greater than zero");
         } else {
@@ -25,6 +32,10 @@ public class Account {
         }
     }
 
+/* (non-Javadoc)
+ * @see com.abc.Account#withdraw(double)
+ */
+@Override
 public void withdraw(double amount) {
     if (amount <= 0) {
         throw new IllegalArgumentException("amount must be greater than zero");
@@ -33,7 +44,11 @@ public void withdraw(double amount) {
     }
 }
 
-    public double interestEarned() {
+    /* (non-Javadoc)
+	 * @see com.abc.Account#interestEarned()
+	 */
+    @Override
+	public double interestEarned() {
         double amount = sumTransactions();
         switch(accountType){
             case SAVINGS:
@@ -55,7 +70,11 @@ public void withdraw(double amount) {
         }
     }
 
-    public double sumTransactions() {
+    /* (non-Javadoc)
+	 * @see com.abc.Account#sumTransactions()
+	 */
+    @Override
+	public double sumTransactions() {
        return checkIfTransactionsExist(true);
     }
 
@@ -66,7 +85,7 @@ public void withdraw(double amount) {
         return amount;
     }
 
-    public int getAccountType() {
+    public AccountType getAccountType() {
         return accountType;
     }
 
