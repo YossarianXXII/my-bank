@@ -4,7 +4,36 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class CustomerTest {
+	
+	 protected class DateAccount extends Account{
+
+			public DateAccount(Type accountType) {
+				super(accountType);
+				// TODO Auto-generated constructor stub
+			}
+			
+			public void deposit(double amount, Date date) {
+				if(amount<0) throw new IllegalArgumentException();
+				
+				Transaction t = new Transaction(amount, date);
+				processTransaction(t);
+				
+			}
+
+			public void withdraw(double amount, Date date) {
+				if(amount<0) throw new IllegalArgumentException();
+				
+				Transaction t = new Transaction(-amount, date);
+				processTransaction(t);
+				
+			}
+	    	
+	    }
 
     @Test //Test customer statement generation
     public void testApp(){
@@ -57,4 +86,37 @@ public class CustomerTest {
         oscar.openAccount(new Account(Account.Type.MAXI_SAVINGS));
         assertEquals(3, oscar.getNumberOfAccounts());
     }
+    
+   
+    
+    @Test
+    public void timedMaxiSavings() throws ParseException {
+    	Customer oscar = new Customer("Oscar");
+    	DateAccount maxi = new DateAccount(Account.Type.MAXI_SAVINGS);
+    	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    	
+    	Date deposit1date = format.parse("2017-11-01");
+    	Date deposit2date = format.parse("2017-11-05");
+    	Date withdrawal1date = format.parse("2017-11-06");
+    	Date withdrawal2date = format.parse("2017-11-19");
+    	
+    	maxi.deposit(1000.0, deposit1date);
+    	maxi.deposit(500.0, deposit2date);
+    	maxi.withdraw(500.0, withdrawal1date);
+    	
+    	
+    	
+    	oscar.openAccount(maxi);
+    	
+    	
+    	
+    	
+    	
+    }
+    
+    
+    
+    
+    
+    
 }

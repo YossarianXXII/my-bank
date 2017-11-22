@@ -3,7 +3,8 @@ package com.abc;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
+import java.util.stream.Collectors;
+import java.awt.IllegalComponentStateException;
 import java.text.NumberFormat;
 
 /**
@@ -19,14 +20,36 @@ public class Customer {
 		this.accounts = new ArrayList<Account>();
 	}
 
-
 	/**
 	 * @param account
 	 * @return
 	 */
 	public void openAccount(Account account) {
 		accounts.add(account);
+
+	}
+	
+	/**
+	 * @param amount must be greater than zero
+	 * @param source
+	 * @param destination
+	 */
+	public void transfer(double amount, Account.Type source, Account.Type destination) {
+		if(amount<0) throw new IllegalArgumentException();
+		if(getAccountByType(source).getSumMoney()-amount < 0) throw new IllegalStateException("Account balance cannot go to negative values.");
 		
+		getAccountByType(source).withdraw(amount);
+		getAccountByType(destination).deposit(amount);
+	}
+	
+
+	public void openAccount(Account.Type account) {
+		accounts.add(new Account(account));
+	}
+
+	public Account getAccountByType(Account.Type type) {
+		Account a = accounts.stream().filter(t -> type.equals(t.getAccountType())).collect(Collectors.toList()).get(0);
+		return a;
 	}
 
 	/**
@@ -49,7 +72,7 @@ public class Customer {
 	public String getStatement() {
 		StringBuilder statement = new StringBuilder();
 		NumberFormat us = NumberFormat.getCurrencyInstance(Locale.US);
-		
+
 		statement.append("Statement for " + name + "\n");
 		double total = 0.0;
 		for (Account a : accounts) {
@@ -57,12 +80,9 @@ public class Customer {
 			total += a.getSumMoney();
 		}
 		statement.append("\n").append("Total In All Accounts ").append(us.format(total));
-		
 		return statement.toString();
 	}
-	
-	
-	
+
 	public String getName() {
 		return name;
 	}

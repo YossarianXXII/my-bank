@@ -9,15 +9,24 @@ public class Transaction {
 
     private Date transactionDate;
 
+    /**
+     * Takes in @param amount, can be either negative(withdrawal)
+     * or positive(deposit). Transaction will be created with current 
+     * date.
+     */
     public Transaction(double amount) {
-        this.amount = amount;
-        this.transactionDate = Calendar.getInstance().getTime();
+    	this(amount, Calendar.getInstance().getTime());
     }
     
+    
+    
+    /**
+     * @param amount
+     * @param date
+     */
     public Transaction(double amount, Date date) {
     	this.amount = amount;
-    	this.transactionDate = date;
-    
+    	this.transactionDate = date;    
     }
 
 	/**

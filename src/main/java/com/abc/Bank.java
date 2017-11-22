@@ -14,13 +14,11 @@ public class Bank {
 	public String customerSummary() {
 		StringBuilder summary = new StringBuilder("Customer Summary");
 		for (Customer c : customers)
-			summary.append("\n - " + c.getName() + " (" + pluralFormat(c.getNumberOfAccounts(), "account") + ")");
+			summary.append("\n - " + c.getName() + " (" + Utils.pluralFormat(c.getNumberOfAccounts(), "account") + ")");
 		return summary.toString();
 	}
 
-	private String pluralFormat(int number, String word) {
-		return number + " " + (number == 1 ? word : word + "s");
-	}
+
 
 	public double totalInterestPaid() {
 		return customers.stream().mapToDouble(e -> e.totalInterestEarned()).sum();
