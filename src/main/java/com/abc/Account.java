@@ -138,9 +138,9 @@ public class Account {
 		});
 
 		public final String name;
-		public final Function<Double, Double> interest;
+		public final Function<? super Double, ? extends Double> interest;
 		
-		private Type(String name, Function<Double, Double> interest) {
+		private Type(String name, Function<? super Double, ? extends Double> interest) {
 			this.name = name;
 			this.interest = interest;
 		}
