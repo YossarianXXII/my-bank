@@ -86,36 +86,7 @@ public class CustomerTest {
         oscar.openAccount(new Account(Account.Type.MAXI_SAVINGS));
         assertEquals(3, oscar.getNumberOfAccounts());
     }
-    
-   
-    
-    @Test
-    public void timedMaxiSavings() throws ParseException {
-    	Customer oscar = new Customer("Oscar");
-    	DateAccount maxi = new DateAccount(Account.Type.MAXI_SAVINGS);
-    	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-    	
-    	Date deposit1date = format.parse("2017-11-01");
-    	Date deposit2date = format.parse("2017-11-05");
-    	Date withdrawal1date = format.parse("2017-11-06");
-    	Date withdrawal2date = format.parse("2017-11-19");
-    	
-    	maxi.deposit(1000.0, deposit1date);
-    	maxi.deposit(500.0, deposit2date);
-    	maxi.withdraw(500.0, withdrawal1date);
-    	
-    	
-    	
-    	oscar.openAccount(maxi);
-    	
-    	
-    	
-    	
-    	
-    }
-    
-    
-    
+
     
     
     

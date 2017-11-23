@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
-import java.awt.IllegalComponentStateException;
 import java.text.NumberFormat;
 
 /**
@@ -51,6 +50,10 @@ public class Customer {
 		Account a = accounts.stream().filter(t -> type.equals(t.getAccountType())).collect(Collectors.toList()).get(0);
 		return a;
 	}
+	
+	public List<Account> getAccounts(){
+		return accounts;
+	}
 
 	/**
 	 * @return
@@ -62,7 +65,7 @@ public class Customer {
 	public double totalInterestEarned() {
 		double total = 0.0;
 		for (Account a : accounts)
-			total += a.computeInterestEarned();
+			total += a.getInterestEarned();
 		return total;
 	}
 

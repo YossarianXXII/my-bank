@@ -10,40 +10,53 @@ import java.util.function.Function;
 
 public class Account {
 
+	enum Type {
+		CHECKING("Checking Account", account -> {
+			return account.getTotalBalance() * CHECKING_INTEREST/365;
+		}), 
+		SAVINGS("Savings Account", account -> {
+			double money = account.getTotalBalance();			
+			if (money <= 1000)
+				return money * (SAVINGS_INTEREST_INITIAL/365.0);
+			else
+				return 1/365 + (money - 1000.0) * (SAVINGS_INTEREST_STANDARD/365.0); 
+		}), 
+		MAXI_SAVINGS("Maxi Savings Account", new Function<Account, Double>() {
+			@Override
+			public Double apply(Account account) {
+				double money = account.getTotalBalance();
+				if(account.checkLastWithdrawal(MAXI_DAYS_OF_LOW_INTEREST)) {
+					return money * MAXI_INTEREST_RATE_WITHDRAWAL/365;
+				}else
+				return money * MAXI_INTEREST_RATE_NO_WITHDRAWAL/365;
+				
+			}
+		});
+
+		public final String name;
+		public final Function<Account, Double> interest;
+		
+		private Type(String name, Function<Account, Double> interest) {
+			this.name = name;
+			this.interest = interest;
+		}
+				
+		
+		
+	}
+	public static double MAXI_INTEREST_RATE_NO_WITHDRAWAL = 0.05;
+	public static double MAXI_INTEREST_RATE_WITHDRAWAL = 0.001;
+	public static int MAXI_DAYS_OF_LOW_INTEREST = 10;
+	
+	public static double CHECKING_INTEREST = 0.001;
+	public static double SAVINGS_INTEREST_INITIAL = 0.001;
+	public static double SAVINGS_INTEREST_STANDARD = 0.002;
 	private final Type accountType;
 	public List<Transaction> transactions;
 	private double balance;
-	private double interestEarned = 0.0;
 
-	public double getSumMoney() {
-		return balance;
-	}
-	public static void main(String []args) {
-		double initial = 10000;
-		double store = initial;
-		int withdrawal = 100;
-		
-//		for(int i = 1; i<=365; i++) {
-//			store += store*(0.05/365);	
-//			System.out.println("Daily compound of day " + i + ":" + store);
-//		}
-		
-		
-		for(int i = 1; i<=withdrawal; i++) {
-			store += store*(0.05/365);	
-			System.out.println("Daily compound of day " + i + ":" + store);
-		}
-		for(int i = withdrawal+1; i<=withdrawal+11; i++) {
-			store += store*(0.001/365);		
-			System.out.println("Daily compound of day " + i + ":" + store);
-		}
-		for(int i = withdrawal+12; i<=365; i++) {
-			store += store*(0.05/365);		
-			System.out.println("Daily compound of day " + i + ":" + store);
-		}
-		System.out.println("Final Daily compound: " + store);
-		System.out.println("Yearly compound: " + (initial+initial*0.05) );
-	}
+	private double interestEarned = 0.0;
+	
 	
 	public Account(Type accountType) {
 		this.accountType = accountType;
@@ -51,6 +64,29 @@ public class Account {
 		this.balance = 0.0;
 	}
 
+	/**
+	 * @return True if there was any transaction in past @param daysSince
+	 */
+	private boolean checkLastWithdrawal(int daysSince) {
+		
+		Calendar now = Calendar.getInstance();
+		now.add(Calendar.DAY_OF_MONTH, -daysSince);
+		Date limit = now.getTime();	
+		
+		return transactions.stream().anyMatch(t -> t.getTransactionDate().after(limit) && t.getAmount()<0 );
+		
+	}
+
+	
+
+	/**
+	 * @return Interest earned counted from total balance(sum of transactions + interest)
+	 * Method should be called once per day.
+	 */
+	public void computeInterestEarned() {
+		this.interestEarned += accountType.interest.apply(this);		
+	}
+	
 	/**
 	 * @param amount
 	 *            must be greater than zero
@@ -62,44 +98,18 @@ public class Account {
 		processTransaction(new Transaction(amount));
 
 	}
+	
+	public Type getAccountType() {
+		return accountType;
+	}
+	
+	public double getInterestEarned() {
+		return interestEarned;
+	}
 
 	/**
-	 * @param amount
-	 *            must be greater than zero
+	 * @return Readable format of account transactions.
 	 */
-	public void withdraw(double amount) {
-		if (amount < 0)
-			throw new IllegalArgumentException("amount must be greater than zero");
-
-		processTransaction(new Transaction(-amount));
-	}
-
-	public double computeInterestEarned() {
-		return accountType.interest.apply(sumTransactions());
-	}
-	
-	private boolean checkLastTransaction(int daysSince) {
-		
-		Calendar now = Calendar.getInstance();
-		now.add(Calendar.DAY_OF_MONTH, -daysSince);
-		Date limit = now.getTime();	
-		
-		return transactions.stream().anyMatch(t->t.getTransactionDate().after(limit));
-		
-	}
-	
-	private void computeInterestDaily() {
-		
-	}
-
-	private double sumTransactions() {
-		double amount = 0.0;
-		for (Transaction t : transactions)
-			amount += t.getAmount();
-		return amount;
-
-	}
-
 	public String getStatement() {
 		StringBuilder str = new StringBuilder();
 		NumberFormat us = NumberFormat.getCurrencyInstance(Locale.US);
@@ -114,38 +124,34 @@ public class Account {
 
 		return str.toString();
 	}
+	
+	public double getSumMoney() {
+		return balance;
+	}
+
+	/**
+	 * @return Sum of account balance(\u2211 transactions + earned interest)
+	 */
+	public double getTotalBalance() {
+		return this.balance + this.interestEarned;
+	}
 
 	protected void processTransaction(Transaction t) {
 		transactions.add(t);
 		balance += t.getAmount();
 	}
 
-	public Type getAccountType() {
-		return accountType;
-	}
 
-	enum Type {
-		CHECKING("Checking Account", money -> money * 0.001),
-		SAVINGS("Savings Account", money -> { return money <= 1000 ? money * 0.001 : 1 + (money - 1000) * 0.002; }), 
-		
-		
-		MAXI_SAVINGS("Maxi Savings Account", money -> {		
-			if (money <= 1000)
-				return money * 0.02;
-			if (money <= 2000)
-				return 20 + (money - 1000) * 0.05;
-			return 70 + (money - 2000) * 0.1;
-		});
 
-		public final String name;
-		public final Function<? super Double, ? extends Double> interest;
-		
-		private Type(String name, Function<? super Double, ? extends Double> interest) {
-			this.name = name;
-			this.interest = interest;
-		}
-				
+	/**
+	 * @param amount
+	 *            must be greater than zero
+	 */
+	public void withdraw(double amount) {
+		if (amount < 0)
+			throw new IllegalArgumentException("amount must be greater than zero");
 
+		processTransaction(new Transaction(-amount));
 	}
 
 }

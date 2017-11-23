@@ -17,6 +17,22 @@ public class Bank {
 			summary.append("\n - " + c.getName() + " (" + Utils.pluralFormat(c.getNumberOfAccounts(), "account") + ")");
 		return summary.toString();
 	}
+	
+	
+	/**
+	 * Method to be called once per day to calculate interest for every customer/account
+	 */
+	public void dailyAccountInterest() {
+//		throw new UnsupportedOperationException();
+		
+		
+		  for(Customer c: customers){
+		  		for(Account a: c.getAccounts()){
+		  			a.computeInterestEarned();
+		  		}
+		  } 
+		 
+	}
 
 
 
